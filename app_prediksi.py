@@ -1,6 +1,3 @@
-from cmath import sqrt
-from turtle import forward
-from sklearn.metrics import mean_squared_error
 import streamlit as st
 import pandas as pd
 import numpy as np
