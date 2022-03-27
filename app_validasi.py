@@ -34,11 +34,11 @@ def app():
   st.title("Evaluasi Model Regresi LSTM")
   st.markdown("Pastikan data csv yang dimasukan memiliki jumlah kolom, dan nama yang sama dengan csv contoh di [google drive](https://drive.google.com/file/d/18uV7VIjBp7NIoeG0cQbMvdTprMGLE_BO/view?usp=sharing).")
 
-  choice = st.selectbox("Pilih jenis model", ["Prediksi 2 jam ke depan", "Prediksi 4 jam ke depan"])
+  choice = st.selectbox("Pilih jenis model", ["Prediksi 2 jam ke depan", "Prediksi 4 jam ke depan", "Prediksi 2 jam ke depan (data training 2018-2019)"])
   source_data = st.file_uploader("Upload file data", "csv", accept_multiple_files=False)
 
   backwards_period = 24
-  forward_period = 2 if choice == "Prediksi 2 jam ke depan" else 4
+  forward_period = 2 if choice == "Prediksi 2 jam ke depan" or choice == "Prediksi 2 jam ke depan (data training 2018-2019)" else 4
 
   N_features = 14
 
@@ -59,7 +59,7 @@ def app():
           data = to_supervised(df, backwards_period, forward_period)
           values = data.values
 
-          scaler = joblib.load(f"data_scaler_{forward_period}.gz")
+          scaler = joblib.load(f"data_scaler_{forward_period}_2018_2019.gz" if choice == "Prediksi 2 jam ke depan (data training 2018-2019)" else f"data_scaler_{forward_period}.gz")
           values = scaler.transform(values)
 
           n_obs = N_features * backwards_period
@@ -67,7 +67,7 @@ def app():
           validation_X, validation_Y = values[:, :n_obs], values[:, -forward_period:]
           validation_X = validation_X.reshape((validation_X.shape[0], backwards_period, N_features))
 
-          model = keras.models.load_model(f"models/{'debit-regression-24b-2f.h5' if forward_period == 2 else 'debit-regression-24b-4f.h5'}")
+          model = keras.models.load_model(f"models/{'debit-regression-24b-2f-2018-2019.h5' if choice == 'Prediksi 2 jam ke depan (data training 2018-2019)' else 'debit-regression-24b-2f.h5' if forward_period == 2 else 'debit-regression-24b-4f.h5'}")
 
           yhat = model.predict(validation_X)
 
